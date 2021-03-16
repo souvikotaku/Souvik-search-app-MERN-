@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+
+  node-search-app-db:
+    image: mongo
+    restart: always
+    container_name: node-search-app-db
+    ports:
+      - 27017:27017 
+    volumes:
+      - node-search-app-db:/data/db
+    networks: 
+      - node-search-app-network
+
+  node-search-app-app:
+    image: thisk8brd/node-search-app-app:dev
+    build: 
+      context: .
+      target: dev
+    container_name: node-search-app-app
+    restart: always
+    volumes: 
+      - .:/app
+    ports:
+      - "5003:5003"
+      - "3000:3000"
+    depends_on:
+      - node-search-app-db
+    environment:
+      - MONGODB_URI=mongodb://node-search-app-db/node-search-app-db
+    networks: 
+      - node-search-app-network
+
+volumes: 
+  node-search-app-db:
+    name: node-search-app-db
+
+networks: 
+  node-search-app-network:
+    name: node-search-app-network
